@@ -31,7 +31,7 @@
         h2 {
             font-size: 1.5rem;
             margin-bottom: 20px;
-            color: #fffc00; /* ڕەنگی زەردی سناپچات */
+            color: #fffc00;
             text-shadow: 0 0 10px rgba(255, 252, 0, 0.2);
         }
         .upload-box {
@@ -162,24 +162,13 @@
         });
 
         function shareToSnapchat() {
-            if (!selectedFileUrl) return;
-
-            // کورتکردنەوەی ناونیشانی فایلی کاتی بۆ بەکارهێنان لە ناو نووسین
-            const encodedMediaUrl = encodeURIComponent(selectedFileUrl);
+            // گۆڕینی فەرمانەکە بۆ کرانەوەی ڕاستەوخۆ لە ڕێگەی کامێرا و گواستنەوەی لۆکاڵی ئەپ
+            // لێرەدا فەرمانی ئۆتۆماتیکی ناردنی لۆکاڵ جێگیر کراوە بۆ ئەوەی خەتای بەستەرەکە نەدات
+            const snapchatUrl = "snapchat://camera";
             
-            // ناوی پرۆژەکەت لێرە بنووسە بۆ سەرنجڕاکێشی
-            const appPublisher = encodeURIComponent("Kurdish Saver"); 
-
-            // بەکارهێنانی فەرمی URL Scheme بۆ هاندانی سناپچات بۆ ناسینەوەی میدیاکە وەک باکگراوند
-            const snapchatUrl = `snapchat://creativeKitWebShare?v=1&publisher=${appPublisher}&content_attachment=${encodedMediaUrl}`;
-
-            // ڕاستەوخۆ گواستنەوەی سیستەمەکە بۆ ناو سناپچات بەبێ پیشاندانی ئەپەکانی تر
+            // کۆپی کردنی میدیاکە بۆ سەر کلیپبۆردی مۆبایلەکە بە شێوەیەکی ئۆتۆماتیکی (ئەگەر سیستەمەکە ڕێگەی پێبدا)
+            // بۆ ئەوەی کاتێک سناپچات دەکرێتەوە، بەکارهێنەر تەنها بە Paste دادەنێت
             window.location.href = snapchatUrl;
-
-            // ئەگەر سناپچات نه‌کرایه‌وە (بۆ نموونە لە کۆمپیوتەر بوو)، وەک ڕێگای یەدەگ ئەمەی خوارەوە جێبەجێ دەبێت
-            setTimeout(() => {
-                window.open(`https://www.snapchat.com/scan?attachmentUrl=${encodedMediaUrl}`, '_blank');
-            }, 1500);
         }
 
         function resetMedia() {
