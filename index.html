@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شەیرکردن بۆ سناپچات</title>
+    <title>شەیرکردن</title>
     <style>
         body { 
             font-family: sans-serif; 
@@ -23,12 +23,16 @@
         input[type="file"] {
             margin-bottom: 20px;
             font-size: 16px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
+        /* دوگمەکە ئێستا هەمیشە دیارە */
         #shareButton { 
-            display: none; /* سەرەتا شاردراوەتەوە تا وێنە هەڵدەبژێریت */
+            display: block; 
             margin: 20px auto 0; 
             padding: 15px 30px; 
-            background: #FFFC00; /* ڕەنگی زەردی سناپچات */
+            background: #FFFC00; 
             color: black;
             border: none; 
             border-radius: 10px; 
@@ -43,7 +47,6 @@
 
     <div class="container">
         <h2>وێنەکە هەڵبژێرە</h2>
-        <p>بۆ ناردن بۆ سناپچات</p>
         
         <input type="file" id="imageInput" accept="image/*">
         
@@ -53,31 +56,31 @@
     <script>
         const input = document.getElementById('imageInput');
         const shareButton = document.getElementById('shareButton');
-        let fileToShare = null;
 
-        // کاتێک بەکارهێنەر وێنەیەک هەڵدەبژێرێت
-        input.addEventListener('change', (e) => {
-            fileToShare = e.target.files[0];
-            if (fileToShare) {
-                // دوگمەی شەیرکردن دەردەخات
-                shareButton.style.display = 'block'; 
-            }
-        });
-
-        // کاتێک کلیک لە دوگمەی شەیر دەکرێت
         shareButton.addEventListener('click', async () => {
-            if (!fileToShare) return;
+            // پشکنین دەکات بزانێت وێنەت هەڵبژاردووە یان نا
+            if (input.files.length === 0) {
+                alert("تکایە سەرەتا وێنەیەک هەڵبژێرە لە قۆپچەی سەرووتر!");
+                return;
+            }
 
-            // ئامادەکردنی وێنەکە بۆ شەیرکردن
+            const fileToShare = input.files[0];
             const filesArray = [new File([fileToShare], "snap.jpg", { type: fileToShare.type })];
 
             if (navigator.canShare && navigator.canShare({ files: filesArray })) {
                 try {
-                    // کردنەوەی مێنوی شەیری مۆبایلەکە
                     await navigator.share({
                         files: filesArray,
                         title: 'Snapchat',
                         text: 'وێنەیەکی نوێ'
                     });
                 } catch (err) {
-                    console.log('شەیرکردنەکە پەشیمان کرایەوە', err);
+                    console.log('شەیرکردنەکە سەرکەوتوو نەبوو:', err);
+                }
+            } else {
+                alert("مۆبایلەکەت یان براوزەرەکەت پشتگیری ئەم جۆرە شەیرکردنە ناکات.");
+            }
+        });
+    </script>
+</body>
+</html>
