@@ -1,86 +1,200 @@
 <!DOCTYPE html>
-<html lang="ckb" dir="rtl">
+<html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شەیرکردن</title>
+    <title>میدیا ئەپلۆدەر بۆ سناپچات</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            text-align: center; 
-            margin-top: 50px; 
-            background-color: #f4f4f4; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .container { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            display: inline-block; 
-            width: 80%;
-            max-width: 400px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b0f19;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        input[type="file"] {
-            margin-bottom: 20px;
-            font-size: 16px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        /* دوگمەکە ئێستا هەمیشە دیارە */
-        #shareButton { 
-            display: block; 
-            margin: 20px auto 0; 
-            padding: 15px 30px; 
-            background: #FFFC00; 
-            color: black;
-            border: none; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 18px;
+        .container {
             width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #fffc00; /* ڕەنگی زەردی سناپچات */
+            text-shadow: 0 0 10px rgba(255, 252, 0, 0.2);
+        }
+        .upload-box {
+            border: 2px dashed #fffc00;
+            padding: 30px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            background: rgba(255, 252, 0, 0.02);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        .upload-box:hover {
+            background: rgba(255, 252, 0, 0.05);
+        }
+        .upload-box p {
+            font-size: 0.95rem;
+            color: #a0aec0;
+        }
+        #fileInput {
+            display: none;
+        }
+        .preview-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            background-color: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .preview-wrapper img, .preview-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .btn-snap {
+            margin-top: 15px;
+            padding: 12px 25px;
+            background: #fffc00;
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 252, 0, 0.4);
+            transition: transform 0.2s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .btn-snap:active {
+            transform: scale(0.98);
+        }
+        .btn-reset {
+            margin-top: 10px;
+            background: transparent;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>وێنەکە هەڵبژێرە</h2>
+        <h2>ڕەوانەکردنی ڕاستەوخۆ بۆ سناپچات</h2>
         
-        <input type="file" id="imageInput" accept="image/*">
+        <div class="upload-box" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <svg width="48" height="48" fill="none" stroke="#fffc00" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: 10px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p>وێنە یان ڤیدیۆکە لێرە دابنێ</p>
+            <input type="file" id="fileInput" accept="image/*,video/*">
+        </div>
+
+        <div class="preview-wrapper" id="previewWrapper">
+            <img id="imagePreview" alt="Preview Image">
+            <video id="videoPreview" autoplay loop muted playsinline></video>
+        </div>
+
+        <button class="btn-snap" id="snapBtn" onclick="shareToSnapchat()">
+            ناردنی ڕاستەوخۆ بۆ Snapchat 🚀
+        </button>
         
-        <button id="shareButton">شەیرکردن بۆ سناپچات 👻</button>
+        <button class="btn-reset" id="resetBtn" onclick="resetMedia()">سڕینەوەی فایل</button>
     </div>
 
     <script>
-        const input = document.getElementById('imageInput');
-        const shareButton = document.getElementById('shareButton');
+        const fileInput = document.getElementById('fileInput');
+        const previewWrapper = document.getElementById('previewWrapper');
+        const imagePreview = document.getElementById('imagePreview');
+        const videoPreview = document.getElementById('videoPreview');
+        const snapBtn = document.getElementById('snapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const dropZone = document.getElementById('dropZone');
+        let selectedFileUrl = '';
 
-        shareButton.addEventListener('click', async () => {
-            // پشکنین دەکات بزانێت وێنەت هەڵبژاردووە یان نا
-            if (input.files.length === 0) {
-                alert("تکایە سەرەتا وێنەیەک هەڵبژێرە لە قۆپچەی سەرووتر!");
-                return;
-            }
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const fileType = file.type;
+                selectedFileUrl = URL.createObjectURL(file);
 
-            const fileToShare = input.files[0];
-            const filesArray = [new File([fileToShare], "snap.jpg", { type: fileToShare.type })];
+                dropZone.style.display = 'none';
+                previewWrapper.style.display = 'block';
+                snapBtn.style.display = 'flex';
+                resetBtn.style.display = 'inline-block';
 
-            if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-                try {
-                    await navigator.share({
-                        files: filesArray,
-                        title: 'Snapchat',
-                        text: 'وێنەیەکی نوێ'
-                    });
-                } catch (err) {
-                    console.log('شەیرکردنەکە سەرکەوتوو نەبوو:', err);
+                if (fileType.startsWith('image/')) {
+                    imagePreview.src = selectedFileUrl;
+                    imagePreview.style.display = 'block';
+                    videoPreview.style.display = 'none';
+                    videoPreview.pause();
+                } else if (fileType.startsWith('video/')) {
+                    videoPreview.src = selectedFileUrl;
+                    videoPreview.style.display = 'block';
+                    imagePreview.style.display = 'none';
+                    videoPreview.play();
                 }
-            } else {
-                alert("مۆبایلەکەت یان براوزەرەکەت پشتگیری ئەم جۆرە شەیرکردنە ناکات.");
             }
         });
+
+        function shareToSnapchat() {
+            if (!selectedFileUrl) return;
+
+            // کورتکردنەوەی ناونیشانی فایلی کاتی بۆ بەکارهێنان لە ناو نووسین
+            const encodedMediaUrl = encodeURIComponent(selectedFileUrl);
+            
+            // ناوی پرۆژەکەت لێرە بنووسە بۆ سەرنجڕاکێشی
+            const appPublisher = encodeURIComponent("Kurdish Saver"); 
+
+            // بەکارهێنانی فەرمی URL Scheme بۆ هاندانی سناپچات بۆ ناسینەوەی میدیاکە وەک باکگراوند
+            const snapchatUrl = `snapchat://creativeKitWebShare?v=1&publisher=${appPublisher}&content_attachment=${encodedMediaUrl}`;
+
+            // ڕاستەوخۆ گواستنەوەی سیستەمەکە بۆ ناو سناپچات بەبێ پیشاندانی ئەپەکانی تر
+            window.location.href = snapchatUrl;
+
+            // ئەگەر سناپچات نه‌کرایه‌وە (بۆ نموونە لە کۆمپیوتەر بوو)، وەک ڕێگای یەدەگ ئەمەی خوارەوە جێبەجێ دەبێت
+            setTimeout(() => {
+                window.open(`https://www.snapchat.com/scan?attachmentUrl=${encodedMediaUrl}`, '_blank');
+            }, 1500);
+        }
+
+        function resetMedia() {
+            fileInput.value = '';
+            imagePreview.src = '';
+            videoPreview.src = '';
+            imagePreview.style.display = 'none';
+            videoPreview.style.display = 'none';
+            previewWrapper.style.display = 'none';
+            snapBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            dropZone.style.display = 'block';
+            selectedFileUrl = '';
+        }
     </script>
+
 </body>
 </html>
